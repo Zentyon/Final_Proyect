@@ -2,18 +2,19 @@
 #include <fstream>
 #include <stdlib.h>
 #include <windows.h>
-
-
 using namespace std;
+
 
 class notepad{
 protected:
   int day, mont, year;
+  string aviso = "This is a Test";
 public:
-  
+
   void save();
   void read();
   void edit();
+  void popup();
  };
 
 
@@ -26,9 +27,6 @@ void notepad :: save(){
        cout << "No se puede abrir el archivo";
        exit(1);
    }
-
-   nota << "Hola Mundo!\n";
-
    cout << "Descripcion: ";
    getline(cin, info);
 
@@ -75,15 +73,26 @@ void notepad :: edit(){
   nota.close();
 }
 
+void notepad :: popup(){
+  // https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
+int msgboxID = MessageBox(
+        NULL,
+        aviso.c_str(),
+        "AVISO IMPORTANTE",
+        MB_ICONASTERISK
+    );
+}
+
+
 int main(){
   notepad user;
-
-
 
   user.save();
   user.read();
   user.edit();
   user.read();
+
+  user.popup();
 
   return 0;
 }
