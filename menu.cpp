@@ -104,7 +104,7 @@ void notepad :: read(){
   if(nota.fail()){
     cout << "no se pudo leer el archivo\n";
   }
-  
+
   else{
     while (getline(nota,linea)) {
       texto = texto + linea + '\n';
