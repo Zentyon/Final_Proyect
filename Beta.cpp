@@ -12,35 +12,31 @@
 #include <cstdlib>
 #include <math.h>
 using namespace std;
-auto today(){ return(system("DATE/T"));}
+auto today(){ return(system("DATE/T"));} //Fecha de del sistema
 
-
-class nucleo
+class heart //Clase Raíz
 {
   protected:
     int nothing = 0;
   public:
     int size = 0;
-    nucleo(){size = load_setup();}
+    string actual;
+    heart(){size = load_setup();}
     int load_setup(){
-
       string str;
       int num = 0, size = str.size();
-
       ifstream base;
       base.open("setup.txt", ios :: in);
-
         getline(base, str);
-        cout << str<< '\n';
         for(int i = 0; i < str.size(); i++) {
         num *= 10;
         num += str[i]-'0';
       }
       base.close();
       return num;
-    }
+    }   //Carga el valor del setup como int
 
-    void save_setup( int input){
+    void save_setup(int input){
         string str;
         int num = load_setup();
         ofstream save;
@@ -51,94 +47,74 @@ class nucleo
           str = s.str();
           save << str;
         save.close();
-    }
+    }   //Guarda el valor del setup como string
+
+    string current(){
+      ifstream add;
+      add.open("setup.txt", ios :: in);
+      getline(add,actual);
+      add.close();
+      return actual;
+    };  //Carga el valor del setup como string
 };
 
-class notepad : public nucleo{
+class notepad : public heart{
 protected:
-  string day, mont, year;
+  string day, month, year;
   string aviso = "This is a Test";
 	string title;
 	string texto;
 	string linea;
+  string nombre;
 public:
-
   void save();
-  void read();
-  void delit();
+  void read(int);
+  void delit(int);
   void popup();
- };
+  void name(int);
+};   //Clase Heredada
 
  void notepad :: save(){
+    fflush(stdin);
+    save_setup(1);
+    nombre = current() + ".txt";
     ofstream nota;
+    nota.open(nombre.c_str(), ios::out); //abre el archivo
 
-    nota.open("new_note.txt", ios::out); //abre el archivo
-    if(nota.fail()){
-        cout << "No se puede abrir el archivo";
-        exit(1);
-    }
-
-    /*cout << "Escribe el Titulo: ";
-    getline(cin, title);
-
-    archivo.open(title.c_str(), ios::out);*/
-
-    cout << "\t\tNueva Nota\n";
-      getline(cin, linea);
+    cout << "\t--NUEVA NOTA--\n" << endl;
     cout << "Titulo: ";
       getline(cin, title); nota << title	<< '\n';
     cout << "Day: ";
       getline(cin, day);		nota << day	<< '\n';
     cout << "Month: ";
-      getline(cin, mont);	nota << mont << '\n';
+      getline(cin, month);	nota << month << '\n';
     cout << "Year: ";
       getline(cin, year);	nota << year << '\n';
     cout << "Descripcion: ";
       getline(cin, texto);	nota << texto << '\n';
 
     nota.close(); //cierra el archivo
+
  }
 
-
- /*datos notepad :: read() {
-  ifstream nota("new_note.txt");
-  vector<string> aviso;
-
-  if(!nota.is_open()) {
-    cout << "no se pudo leer el archivo";
-    //exit(1);
-  }
-
-  string titulo;
-  nota.ignore();
-
-  int day, month, year;
-  nota >> day >> month >> year;
-
-
-  getline(nota, titulo);
-
-  while (getline(nota, texto)) { // eof : mientras no sea el final del archivo
-    aviso.push_back(texto);
-    cout << texto << endl;
-  }
-
-  nota.close();
-
-  return datos {
-    day, month, year, titulo, aviso
-  };
- }*/
-
- void notepad :: read(){
+ void notepad :: read(int c){
+  fflush(stdin);
+  system("CLS");
+  stringstream s;
+  s << c;
+  string str =  s.str() + ".txt";
   ifstream nota;
-  nota.open("new_note.txt", ios :: in);
+  nota.open(str.c_str(), ios :: in);
 
   if(nota.fail()){
     cout << "no se pudo leer el archivo\n";
   }
 
   else{
+    getline(nota, title); cout << title << endl;
+    getline(nota, day); cout << day << "/";
+    getline(nota , month); cout << month  << "/";
+    getline(nota, year); cout << year << endl;
     while (getline(nota,linea)) {
       texto = texto + linea + '\n';
     }
@@ -151,9 +127,12 @@ public:
   system("CLS");
  }
 
-
- void notepad :: delit(){
-  remove("new_note.txt");
+ void notepad :: delit(int c){
+   stringstream s;
+   s << c;
+   string str =  s.str() + ".txt";
+   remove(str.c_str());
+  system("CLS");
  }
 
  void notepad :: popup(){
@@ -166,24 +145,31 @@ public:
     );
  }
 
-
-
+ void notepad :: name(int temp){
+  stringstream s;
+  s << temp;
+  ifstream nota;
+  string str =  s.str() + ".txt";
+  nota.open(str.c_str(), ios :: in);
+  getline(nota,nombre);
+  nota.close();
+  cout << nombre;
+}
 
 
 int main(){
-  nucleo user;
-  int *quant;
-  int max = user.size;
-  quant = new int[max];
 
-
-   //cad = new int[cantidad];
-
+  int n_obj = 0;
   int option = 1;
+  int submenu = 0;
   cout << "\n\tWellcome!\n" << endl;
   cout << "Today is: "; cout << today() << endl;
 
 do {
+  heart user; //inicializa setup
+  notepad *notas;
+  notas = new notepad[1000];
+
     cout << "\nQue deseas hacer?\n\t1- Agregar nueva nota \n\t2- Ver notas guardadas\n\t3- Eliminar nota\n\t0- Salir\n\n\tTeclea el numero de la opcion:";
     cin >> option;
 
@@ -192,19 +178,47 @@ do {
             break;
       case 1:
             system("CLS");
-            notas[i].save();
+            (notas+n_obj) -> save();
+            n_obj++;
+            fflush(stdin);
             break;
       case 2:
             system("CLS");
-            notas[i].read();
+            cout<<"\n------------------------------------------------------"<<endl;
+            cout<<" LISTA DE NOTAS "<<endl;
+            cout<<"------------------------------------------------------"<<endl;
+            n_obj = user.size;
+            for (int i = 0; i < n_obj; i++)
+            { cout << "Nota " << i+1 << ":";
+            (notas+i) -> name(i+1);
+            cout << "\n";
+            }
+            cout << "\n\nIntroduce el numero de nota que deseas leer: ";
+            cin >> submenu;
+            (notas)->read(submenu);
+                  system("CLS");
+            fflush(stdin);
             break;
       case 3:
           system("CLS");
-            cout << "Eliminado"<< endl;
-            notas[i].delit();
+          cout<<"\n------------------------------------------------------"<<endl;
+          cout<<" LISTA DE NOTAS "<<endl;
+          cout<<"------------------------------------------------------"<<endl;
+          n_obj = user.size;
+          for (int i = 0; i < n_obj; i++)
+          { cout << "Nota " << i+1 << ":";
+          (notas+i) -> name(i+1);
+          cout << "\n";
+          }
+          cout << "\n\nIntroduce el numero de nota que deseas Eliminar: ";
+          cin >> submenu;
+          (notas)->delit(submenu);
+          cout << "Nota Eliminada\n";
+          fflush(stdin);
             break;
       default: cout << "Opcion invalida, Intenta de nuevo: ";
       }
+      delete [ ] notas;
     }
   while (option !=0);
 
